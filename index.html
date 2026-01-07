@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSS Crafting Calculator</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐝</text></svg>">
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #e0e0e0;
+            --accent: #ffd700;
+            --accent-hover: #ffea70;
+            --border: #333;
+            --missing: #ff4d4d;
+            --good: #4caf50;
+            --dropdown-bg: #2a2a2a;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1, h2 { color: var(--accent); margin-top: 0; font-size: 1.5rem; }
+        h3 { color: #fff; border-bottom: 1px solid #444; padding-bottom: 5px; margin-top: 20px; font-size: 1.1rem; }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+
+        /* Card Styles */
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        /* --- INVENTORY STYLES --- */
+        .inv-section-title {
+            color: #888;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        .inv-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .inv-item {
+            display: flex;
+            flex-direction: column;
+            background: #252525;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+        
+        .inv-item:focus-within { border-color: var(--accent); }
+
+        /* Label Row: Image + Text */
+        .inv-label-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .inv-label-row img {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            border-radius: 4px;
+            object-fit: contain;
+        }
+
+        .inv-label-row span {
+            font-size: 0.9rem;
+            color: #ddd;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .inv-item input {
+            background: #121212;
+            border: 1px solid #444;
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box; 
+            font-size: 1rem;
+        }
+        
+        .inv-item input:focus { outline: none; border-color: var(--accent); }
+
+        /* --- CONTROLS & DROPDOWN --- */
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .custom-select-wrapper {
+            position: relative;
+            flex-grow: 1;
+            user-select: none;
+        }
+
+        .custom-select-trigger {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            background: var(--dropdown-bg);
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .custom-select-trigger:hover { background: #333; }
+        
+        .custom-options {
+            position: absolute;
+            display: block;
+            top: 100%;
+            left: 0;
+            right: 0;
+            border: 1px solid #444;
+            border-top: 0;
+            background: var(--dropdown-bg);
+            transition: all 0.2s;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            z-index: 100;
+            max-height: 300px;
+            overflow-y: auto;
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+        }
+
+        .custom-select-wrapper.open .custom-options {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: all;
+        }
+
+        .custom-option {
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .custom-option:hover {
+            background-color: var(--accent);
+            color: #000;
+        }
+
+        .custom-option img, .custom-select-trigger img {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+            border-radius: 4px;
+            object-fit: contain;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            background: #2a2a2a;
+            border: 1px solid var(--accent);
+            color: white;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 12px 20px;
+            background: var(--accent);
+            color: black;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            height: 42px; 
+        }
+        button:hover { background: var(--accent-hover); }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { text-align: left; padding: 12px 8px; border-bottom: 1px solid var(--border); }
+        th { color: var(--accent); }
+        
+        .status-missing { color: var(--missing); font-weight: bold; }
+        .status-good { color: var(--good); }
+
+        .honey-cost { 
+            font-size: 1.2em; 
+            color: var(--accent); 
+            font-weight: bold; 
+            margin-top: 15px; 
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2>1. Your Inventory</h2>
+            <button id="resetInv" style="background:#333; color:#fff; padding: 5px 10px; font-size:0.8rem; height:auto;">Clear</button>
+        </div>
+        
+        <div class="inv-section-title">Base Materials</div>
+        <div id="inventory-base" class="inv-grid"></div>
+
+        <div class="inv-section-title" style="margin-top:25px; border-top:1px solid #333; padding-top:10px;">Crafted Items & Gear Materials</div>
+        <div id="inventory-crafted" class="inv-grid"></div>
+    </div>
+
+    <div>
+        <div class="card">
+            <h2>2. Crafting Target</h2>
+            <div class="controls">
+                
+                <div class="custom-select-wrapper">
+                    <div class="custom-select-trigger" id="custom-trigger">
+                        <div style="display:flex; align-items:center;">
+                            <img id="trigger-img" src="https://placehold.co/30/black/yellow?text=?" alt="">
+                            <span id="trigger-text">Select Item...</span>
+                        </div>
+                        <span>▼</span>
+                    </div>
+                    <div class="custom-options" id="custom-options"></div>
+                </div>
+                <input type="hidden" id="targetItem" value="Purple Potion">
+
+                <input type="number" id="targetQty" value="1" min="1" style="width: 60px;">
+                <button id="calcBtn">Calculate</button>
+            </div>
+        </div>
+
+        <div id="results-area" class="card">
+            <h2>3. Requirements</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item (Tree View)</th>
+                        <th>Status</th>
+                        <th>Have / Need</th>
+                        <th>Missing</th>
+                    </tr>
+                </thead>
+                <tbody id="results-body"></tbody>
+            </table>
+
+            <div id="honey-total" class="honey-cost"></div>
+
+            <h3 style="margin-top: 30px;">
+                🛒 Raw Material Shopping List
+            </h3>
+            <p style="font-size: 0.9em; color: #888;">(Base materials needed for ALL missing components)</p>
+            <table id="shopping-list">
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+// --- IMAGE MAPPING ---
+// Pre-filled with standard Wiki URLs. You can add more here.
+const ITEM_IMAGES = {
+    "Strawberry": "https://bss-tools.netlify.app/static/media/Strawberries.6312ffaa06b161bdb95a.png",
+    "Blueberry": "https://bss-tools.netlify.app/static/media/Blueberries.fc0b0128b722b680de4f.png",
+    "Pineapple": "https://bss-tools.netlify.app/static/media/Pineapples.8b1a7ad3af63a0e1e1e8.png",
+    "Sunflower Seed": "https://bss-tools.netlify.app/static/media/SunflowerSeeds.7d3961e9438594d34966.png",
+    "Gumdrops": "https://bss-tools.netlify.app/static/media/Gumdrops.aac9d9b12faf213996e5.png",
+    "Royal Jelly": "https://bss-tools.netlify.app/static/media/RoyalJelly.8015b90508a2662a1f17.png",
+    "Moon Charm": "https://bss-tools.netlify.app/static/media/Moon.2baeeb94e80034bd1201.png",
+    "Magic Bean": "https://bss-tools.netlify.app/static/media/MagicBean.37e99473b011b19d151f.png",
+    "Stinger": "https://bss-tools.netlify.app/static/media/Stingers.97d711d75e1ae3634aae.png",
+    "Coconut": "https://bss-tools.netlify.app/static/media/Coconuts.ead605e46b288b802d0f.png",
+    "Red Extract": "https://bss-tools.netlify.app/static/media/RedExtract.fff7479504bc50761c14.png",
+    "Blue Extract": "https://bss-tools.netlify.app/static/media/BlueExtract.7c6f7c31de37500f9dfc.png",
+    "Glue": "https://bss-tools.netlify.app/static/media/Glue.7833f930af3ba01c4c4e.png",
+    "Enzymes": "https://bss-tools.netlify.app/static/media/Enzymes.831a3a57b4232414cb4b.png",
+    "Oil": "https://bss-tools.netlify.app/static/media/Oil.2b19b567560157d7c805.png",
+    "Glitter": "https://bss-tools.netlify.app/static/media/Glitter.97c6a62c7f6f30b6de4b.png",
+    "Tropical Drink": "https://bss-tools.netlify.app/static/media/TropicalDrink.956071eb0d99c672c258.png",
+    "Purple Potion": "https://bss-tools.netlify.app/static/media/PurplePotion.f95e62b1676762ea7ed9.png",
+    "Super Smoothie": "https://bss-tools.netlify.app/static/media/SuperSmoothie.62c954538a7821a58ae9.png",
+    "Neonberry": "https://bss-tools.netlify.app/static/media/NeonBerries.9bc35175bbc6c7e4c7d8.png",
+    "Bitterberry": "https://bss-tools.netlify.app/static/media/Bitterberries.60196f7a0872ce52e4f7.png",
+    "Star Jelly": "https://bss-tools.netlify.app/static/media/StarJelly.a1933b9d4fd792c70a6e.png",
+    "Soft Wax": "https://bss-tools.netlify.app/static/media/SoftWax.aac9035569325353ad56.png",
+    "Hard Wax": "https://bss-tools.netlify.app/static/media/HardWax.e5e8be4a7ee1649c9ebe.png",
+    "Swirled Wax": "https://bss-tools.netlify.app/static/media/SwirledWax.c31ef0dcfe6622beeb44.png",
+    "Caustic Wax": "https://bss-tools.netlify.app/static/media/CausticWax.e80e5ee95baaf56154d0.png",
+    "Turpentine": "https://bss-tools.netlify.app/static/media/Turpentine.81cda48b94de8aa98657.png",
+    "Whirligig": "/Whirligig.webp",
+    "Field Dice": "https://bss-tools.netlify.app/static/media/FieldDice.ae48c6b6fcf41e5e3aaf.png",
+    "Smooth Dice": "https://bss-tools.netlify.app/static/media/SmoothDice.2ed49812cbbda2c1a008.png",
+    "Loaded Dice": "https://bss-tools.netlify.app/static/media/LoadedDice.645beaa8360b39e2bada.png",
+    "Diamond Egg": "https://bss-tools.netlify.app/static/media/DiamondEgg.9cc7e484916e2c870514.png",
+    "Honeysuckle": "https://bss-tools.netlify.app/static/media/HoneySuckle.a3fd1e913efbaffe092f.png",
+    "Treat": "https://bss-tools.netlify.app/static/media/Treats.5e5df4715a517f9b24cb.png",
+    "Honey": "https://bss-tools.netlify.app/static/media/Honey.568a73cfe25ca0dd7808.png",
+    "Spirit Petal": "https://bss-tools.netlify.app/static/media/SpiritPetal.43cf4b79128e403899c6.png",
+    "Gold Egg": "https://bss-tools.netlify.app/static/media/GoldEgg.a4012ec29f252d07fd5d.png"
+};
+
+function getItemIcon(itemName) {
+    if (ITEM_IMAGES[itemName]) {
+        return ITEM_IMAGES[itemName];
+    }
+    const code = itemName.substring(0, 2).toUpperCase();
+    return `https://placehold.co/40/333/fff?text=${code}`;
+}
+
+// --- RECIPES & DATA ---
+const RECIPES = {
+    "Red Extract":      { "Strawberry": 50, "Royal Jelly": 10 },
+    "Blue Extract":     { "Blueberry": 50, "Royal Jelly": 10 },
+    "Glue":             { "Gumdrops": 50, "Royal Jelly": 10 },
+    "Enzymes":          { "Pineapple": 50, "Royal Jelly": 10 },
+    "Oil":              { "Sunflower Seed": 50, "Royal Jelly": 10 },
+    "Glitter":          { "Moon Charm": 25, "Magic Bean": 1 },
+    "Moon Charm":       { "Pineapple": 5, "Gumdrops": 5, "Royal Jelly": 1 },
+    "Star Jelly":       { "Royal Jelly": 100, "Glitter": 3 },
+    "Tropical Drink":   { "Coconut": 10, "Oil": 2, "Enzymes": 2 },
+    "Gumdrops":         { "Pineapple": 3, "Strawberry": 3, "Blueberry": 3 },
+    
+    "Purple Potion":    { "Neonberry": 3, "Red Extract": 3, "Blue Extract": 3, "Glue": 3 },
+    "Super Smoothie":   { "Neonberry": 3, "Star Jelly": 3, "Purple Potion": 3, "Tropical Drink": 6 },
+    "Soft Wax":         { "Honeysuckle": 5, "Oil": 1, "Enzymes": 1, "Royal Jelly": 10 },
+    "Hard Wax":         { "Soft Wax": 3, "Enzymes": 3, "Bitterberry": 33, "Royal Jelly": 33 },
+    "Swirled Wax":      { "Hard Wax": 3, "Soft Wax": 9, "Purple Potion": 6, "Royal Jelly": 3333 },
+    "Caustic Wax":      { "Hard Wax": 5, "Enzymes": 5, "Neonberry": 25, "Royal Jelly": 5252 },
+    "Field Dice":       { "Soft Wax": 1, "Whirligig": 1, "Red Extract": 1, "Blue Extract": 1 },
+    "Smooth Dice":      { "Field Dice": 3, "Soft Wax": 3, "Whirligig": 3, "Oil": 3 },
+    "Loaded Dice":      { "Smooth Dice": 3, "Hard Wax": 3, "Oil": 3, "Glue": 1 },
+    "Turpentine":       { "Super Smoothie": 10, "Star Jelly": 10, "Purple Potion": 3, "Tropical Drink": 6},
+    
+    "Gummy Mask":       { "Glue": 250, "Glitter": 100, "Enzymes": 100, "Oil": 100, "Honey": 5000000000 },
+    "Demon Mask":       { "Stinger": 500, "Red Extract": 250, "Enzymes": 150, "Glue": 100, "Honey": 5000000000 },
+    "Diamond Mask":     { "Diamond Egg": 5, "Blue Extract": 250, "Oil": 150, "Glitter": 100, "Honey": 5000000000 },
+    "Coco Canister":    { "Coconut": 250, "Tropical Drink": 150, "Red Extract": 150, "Blue Extract": 150, "Honey": 25000000000 },
+    "Coco Clogs":       { "Coconut": 150, "Tropical Drink": 50, "Glue": 100, "Oil": 100, "Honey": 10000000000 },
+    "Tide Popper":      { "Blue Extract": 1500, "Stinger": 150, "Tropical Drink": 150, "Swirled Wax": 75, "Super Smoothie": 50, "Honey": 2500000000000 },
+    "Dark Scythe":      { "Red Extract": 1500, "Stinger": 150, "Hard Wax": 100, "Caustic Wax": 50, "Super Smoothie": 50, "Honey": 2500000000000 },
+    "Gummyballer":      { "Glue": 1500, "Gumdrops": 2000, "Caustic Wax": 50, "Turpentine": 5, "Super Smoothie": 50, "Honey": 10000000000000 }
+};
+
+const INVENTORY_KEYS = [
+    "Strawberry", "Blueberry", "Pineapple", "Sunflower Seed", "Gumdrops", "Royal Jelly",
+    "Moon Charm", "Magic Bean", "Stinger", "Coconut", "Honeysuckle", "Bitterberry", "Neonberry",
+    "Red Extract", "Blue Extract", "Glue", "Enzymes", "Oil", "Glitter", "Star Jelly", "Tropical Drink",
+    "Purple Potion", "Super Smoothie", "Field Dice", "Smooth Dice", "Loaded Dice", "Whirligig",
+    "Soft Wax", "Hard Wax", "Swirled Wax", "Caustic Wax", "Turpentine", "Diamond Egg"
+];
+
+const BASE_MATERIALS_LIST = [
+    "Strawberry", "Blueberry", "Pineapple", "Sunflower Seed", "Gumdrops", 
+    "Royal Jelly", "Coconut", "Honeysuckle", "Bitterberry", "Neonberry", 
+    "Magic Bean", "Stinger", "Moon Charm", "Diamond Egg", "Whirligig",
+    "Treat", "Honey","Gold Egg", "Spirit Petal"
+];
+
+const TARGET_OPTIONS = Object.keys(RECIPES).sort();
+
+// --- INITIALIZATION ---
+document.addEventListener('DOMContentLoaded', () => {
+    initInventory();
+    initCustomDropdown();
+    loadInventory();
+    
+    document.getElementById('calcBtn').addEventListener('click', runCalculation);
+    document.getElementById('resetInv').addEventListener('click', () => {
+        if(confirm("Clear all inventory data?")) {
+            document.querySelectorAll('.inv-item input').forEach(i => i.value = 0);
+            saveInventory();
+            runCalculation();
+        }
+    });
+
+    // Auto-calculate on load and input change
+    runCalculation();
+    document.getElementById('inventory-base').addEventListener('input', () => { saveInventory(); runCalculation(); });
+    document.getElementById('inventory-crafted').addEventListener('input', () => { saveInventory(); runCalculation(); });
+});
+
+function initInventory() {
+    const baseContainer = document.getElementById('inventory-base');
+    const craftedContainer = document.getElementById('inventory-crafted');
+
+    INVENTORY_KEYS.sort().forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'inv-item';
+        const cleanId = item.replace(/ /g, '-');
+        
+        div.innerHTML = `
+            <div class="inv-label-row">
+                <img src="${getItemIcon(item)}" alt="${item}">
+                <span>${item}</span>
+            </div>
+            <input type="number" id="inv-${cleanId}" data-name="${item}" value="0" min="0" placeholder="0">
+        `;
+
+        if (BASE_MATERIALS_LIST.includes(item)) {
+            baseContainer.appendChild(div);
+        } else {
+            craftedContainer.appendChild(div);
+        }
+    });
+}
+
+function initCustomDropdown() {
+    const wrapper = document.querySelector('.custom-select-wrapper');
+    const trigger = document.getElementById('custom-trigger');
+    const optionsContainer = document.getElementById('custom-options');
+    const hiddenInput = document.getElementById('targetItem');
+    const triggerText = document.getElementById('trigger-text');
+    const triggerImg = document.getElementById('trigger-img');
+
+    TARGET_OPTIONS.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'custom-option';
+        div.dataset.value = item;
+        div.innerHTML = `<img src="${getItemIcon(item)}" alt="${item}"><span>${item}</span>`;
+
+        div.addEventListener('click', () => {
+            triggerText.textContent = item;
+            triggerImg.src = getItemIcon(item);
+            hiddenInput.value = item;
+            wrapper.classList.remove('open');
+            runCalculation();
+        });
+        optionsContainer.appendChild(div);
+    });
+
+    const defaultItem = "Purple Potion";
+    triggerText.textContent = defaultItem;
+    triggerImg.src = getItemIcon(defaultItem);
+    hiddenInput.value = defaultItem;
+
+    trigger.addEventListener('click', (e) => {
+        wrapper.classList.toggle('open');
+        e.stopPropagation();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!wrapper.contains(e.target)) wrapper.classList.remove('open');
+    });
+}
+
+function saveInventory() {
+    const data = {};
+    document.querySelectorAll('.inv-item input').forEach(input => {
+        const val = parseInt(input.value) || 0;
+        if (val > 0) data[input.dataset.name] = val;
+    });
+    localStorage.setItem('bss_inventory', JSON.stringify(data));
+}
+
+function loadInventory() {
+    const saved = localStorage.getItem('bss_inventory');
+    if (saved) {
+        const data = JSON.parse(saved);
+        Object.keys(data).forEach(key => {
+            const cleanId = key.replace(/ /g, '-');
+            const el = document.getElementById(`inv-${cleanId}`);
+            if(el) el.value = data[key];
+        });
+    }
+}
+
+function getInvCount(item) {
+    const cleanId = item.replace(/ /g, '-');
+    const el = document.getElementById(`inv-${cleanId}`);
+    return el ? (parseInt(el.value) || 0) : 0;
+}
+
+// --- CALCULATION LOGIC ---
+let shoppingList = {};
+let totalHoney = 0;
+let tempInventory = {};
+
+function addToShoppingList(item, amount) {
+    if (item === 'Honey') {
+        totalHoney += amount;
+        return;
+    }
+    if (!shoppingList[item]) shoppingList[item] = 0;
+    shoppingList[item] += amount;
+}
+
+function runCalculation() {
+    const targetItem = document.getElementById('targetItem').value;
+    const targetQty = parseInt(document.getElementById('targetQty').value) || 1;
+    
+    const resultsBody = document.getElementById('results-body');
+    const shoppingTable = document.getElementById('shopping-list');
+    const honeyDiv = document.getElementById('honey-total');
+    
+    resultsBody.innerHTML = '';
+    shoppingTable.innerHTML = '';
+    shoppingList = {}; 
+    totalHoney = 0;
+
+    // Snapshot inventory for calculations
+    tempInventory = {};
+    INVENTORY_KEYS.forEach(k => tempInventory[k] = getInvCount(k));
+
+    renderRequirements(targetItem, targetQty, resultsBody, 0);
+    calculateShoppingCost(targetItem, targetQty);
+
+    const sortedShopping = Object.keys(shoppingList).sort();
+    if (sortedShopping.length === 0) {
+        shoppingTable.innerHTML = '<tr><td style="color:#888;">No raw materials needed!</td></tr>';
+    } else {
+        sortedShopping.forEach(mat => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="width:70%; border-bottom:1px solid #333;">
+                    <div style="display:flex; align-items:center;">
+                        <img src="${getItemIcon(mat)}" style="width:20px; margin-right:8px; border-radius:2px;">
+                        ${mat}
+                    </div>
+                </td>
+                <td style="color:var(--accent); font-weight:bold; border-bottom:1px solid #333;">${shoppingList[mat].toLocaleString()}</td>
+            `;
+            shoppingTable.appendChild(tr);
+        });
+    }
+
+    if (totalHoney > 0) {
+        honeyDiv.textContent = `Total Honey Cost: ${formatHoney(totalHoney)}`;
+    } else {
+        honeyDiv.textContent = '';
+    }
+}
+
+function renderRequirements(itemName, qty, container, depth) {
+    const recipe = RECIPES[itemName];
+    if (!recipe) return;
+
+    for (const [ingredient, amountPer] of Object.entries(recipe)) {
+        const totalNeeded = amountPer * qty;
+        
+        if (ingredient === "Honey") continue;
+
+        const have = getInvCount(ingredient);
+        const missing = Math.max(0, totalNeeded - have);
+
+        const tr = document.createElement('tr');
+        const statusClass = missing > 0 ? 'status-missing' : 'status-good';
+        const statusText = missing > 0 ? 'Missing' : '✅';
+        const indentStyle = depth > 0 ? `padding-left: ${depth * 25}px;` : '';
+        const arrow = depth > 0 ? `<span style="color:#666; margin-right:5px;">└─</span>` : '';
+        
+        tr.className = statusClass;
+        tr.innerHTML = `
+            <td style="${indentStyle}">
+                <div style="display:flex; align-items:center;">
+                    ${arrow}
+                    <img src="${getItemIcon(ingredient)}" style="width:20px; margin-right:8px; border-radius:2px;">
+                    ${ingredient}
+                </div>
+            </td>
+            <td>${statusText}</td>
+            <td>${have.toLocaleString()} / ${totalNeeded.toLocaleString()}</td>
+            <td>${missing > 0 ? missing.toLocaleString() : '-'}</td>
+        `;
+        container.appendChild(tr);
+
+        if (missing > 0 && RECIPES[ingredient]) {
+             renderRequirements(ingredient, missing, container, depth + 1);
+        }
+    }
+}
+
+function calculateShoppingCost(item, qtyNeeded) {
+    const currentInv = tempInventory[item] || 0;
+    const useFromInv = Math.min(currentInv, qtyNeeded);
+    tempInventory[item] -= useFromInv;
+    
+    const stillMissing = qtyNeeded - useFromInv;
+
+    if (stillMissing <= 0) return;
+
+    const recipe = RECIPES[item];
+
+    if (recipe) {
+        for (const [subIng, subAmt] of Object.entries(recipe)) {
+            if (subIng === "Honey") {
+                addToShoppingList("Honey", subAmt * stillMissing);
+            } else {
+                calculateShoppingCost(subIng, subAmt * stillMissing);
+            }
+        }
+    } else {
+        addToShoppingList(item, stillMissing);
+    }
+}
+
+function formatHoney(num) {
+    if (num >= 1e12) return (num / 1e12).toFixed(2) + " Trillion";
+    if (num >= 1e9) return (num / 1e9).toFixed(2) + " Billion";
+    if (num >= 1e6) return (num / 1e6).toFixed(2) + " Million";
+    return num.toLocaleString();
+}
+</script>
+
+</body>
+</html>
