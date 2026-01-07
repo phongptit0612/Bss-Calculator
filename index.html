@@ -16,6 +16,7 @@
             --missing: #ff4d4d;
             --good: #4caf50;
             --dropdown-bg: #2a2a2a;
+            --disabled-bg: #1a1a1a;
         }
 
         body {
@@ -30,10 +31,10 @@
         h3 { color: #fff; border-bottom: 1px solid #444; padding-bottom: 5px; margin-top: 20px; font-size: 1.1rem; }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: 1.2fr 1fr;
+            grid-template-columns: 0.8fr 1.3fr; 
             gap: 20px;
         }
 
@@ -61,7 +62,7 @@
 
         .inv-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
             gap: 10px;
         }
 
@@ -77,7 +78,6 @@
         
         .inv-item:focus-within { border-color: var(--accent); }
 
-        /* Label Row: Image + Text */
         .inv-label-row {
             display: flex;
             align-items: center;
@@ -112,20 +112,25 @@
             font-size: 1rem;
         }
         
+        .inv-item input::-webkit-outer-spin-button,
+        .inv-item input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .inv-item input[type=number] { appearance: textfield; -moz-appearance: textfield; }
         .inv-item input:focus { outline: none; border-color: var(--accent); }
 
-        /* --- CONTROLS & DROPDOWN --- */
+        /* --- CONTROLS ROW (Perfect Alignment) --- */
         .controls {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
-            align-items: flex-start;
+            height: 50px; /* Fixed height for the row */
         }
 
+        /* 1. Dropdown */
         .custom-select-wrapper {
             position: relative;
             flex-grow: 1;
             user-select: none;
+            height: 100%;
         }
 
         .custom-select-trigger {
@@ -133,7 +138,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px;
+            padding: 0 15px;
             font-size: 1rem;
             font-weight: bold;
             color: #fff;
@@ -141,11 +146,51 @@
             border: 1px solid var(--accent);
             border-radius: 4px;
             cursor: pointer;
-            transition: all 0.2s;
+            height: 100%; /* Fill row height */
+            box-sizing: border-box;
         }
 
-        .custom-select-trigger:hover { background: #333; }
-        
+        /* 2. Quantity Input */
+        #targetQty {
+            padding: 0 10px;
+            background: #2a2a2a;
+            border: 1px solid var(--accent);
+            color: white;
+            border-radius: 4px;
+            height: 100%; /* Fill row height */
+            box-sizing: border-box;
+            font-size: 1.1rem;
+            text-align: center;
+            width: 80px;
+        }
+
+        /* Disabled State for Quantity */
+        #targetQty:disabled {
+            background: var(--disabled-bg);
+            border-color: #444;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        /* 3. Calculate Button */
+        #calcBtn {
+            padding: 0 25px;
+            background: var(--accent);
+            color: black;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            height: 100%; /* Fill row height */
+            box-sizing: border-box;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #calcBtn:hover { background: var(--accent-hover); }
+
+        /* Dropdown Options */
         .custom-options {
             position: absolute;
             display: block;
@@ -155,12 +200,11 @@
             border: 1px solid #444;
             border-top: 0;
             background: var(--dropdown-bg);
-            transition: all 0.2s;
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
             z-index: 100;
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
             border-radius: 0 0 4px 4px;
             box-shadow: 0 5px 10px rgba(0,0,0,0.5);
@@ -173,47 +217,27 @@
         }
 
         .custom-option {
-            position: relative;
             display: flex;
             align-items: center;
-            padding: 10px;
+            padding: 10px 10px 10px 20px;
             border-bottom: 1px solid #333;
             cursor: pointer;
-            transition: all 0.2s;
         }
-
-        .custom-option:hover {
-            background-color: var(--accent);
-            color: #000;
-        }
-
+        .custom-option:hover { background-color: var(--accent); color: #000; }
         .custom-option img, .custom-select-trigger img {
-            width: 30px;
-            height: 30px;
-            margin-right: 10px;
-            border-radius: 4px;
-            object-fit: contain;
+            width: 30px; height: 30px; margin-right: 10px; border-radius: 4px; object-fit: contain;
         }
-
-        input[type="number"] {
-            padding: 10px;
-            background: #2a2a2a;
-            border: 1px solid var(--accent);
-            color: white;
-            border-radius: 4px;
-        }
-
-        button {
-            padding: 12px 20px;
-            background: var(--accent);
-            color: black;
-            border: none;
+        .custom-option-header {
+            background: #222;
+            color: var(--accent);
+            padding: 8px 10px;
+            font-size: 0.85rem;
             font-weight: bold;
-            cursor: pointer;
-            border-radius: 4px;
-            height: 42px; 
+            text-transform: uppercase;
+            border-bottom: 1px solid #333;
+            pointer-events: none;
+            letter-spacing: 1px;
         }
-        button:hover { background: var(--accent-hover); }
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { text-align: left; padding: 12px 8px; border-bottom: 1px solid var(--border); }
@@ -229,6 +253,16 @@
             margin-top: 15px; 
             text-align: right;
         }
+
+        /* Toggle Switch */
+        .header-row { display: flex; justify-content: space-between; align-items: center; }
+        .toggle-container { display: flex; align-items: center; font-size: 0.9rem; color: #aaa; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; margin-left: 10px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(20px); }
     </style>
 </head>
 <body>
@@ -237,7 +271,7 @@
     <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <h2>1. Your Inventory</h2>
-            <button id="resetInv" style="background:#333; color:#fff; padding: 5px 10px; font-size:0.8rem; height:auto;">Clear</button>
+            <button id="resetInv" style="background:#333; color:#fff; padding: 5px 10px; font-size:0.8rem; height:auto; cursor:pointer; border:none; border-radius:4px;">Clear</button>
         </div>
         
         <div class="inv-section-title">Base Materials</div>
@@ -264,17 +298,27 @@
                 </div>
                 <input type="hidden" id="targetItem" value="Purple Potion">
 
-                <input type="number" id="targetQty" value="1" min="1" style="width: 60px;">
+                <input type="number" id="targetQty" value="1" min="1" onfocus="this.select()" onkeypress="return event.charCode >= 48 && event.charCode <= 57">
                 <button id="calcBtn">Calculate</button>
             </div>
         </div>
 
         <div id="results-area" class="card">
-            <h2>3. Requirements</h2>
+            <div class="header-row">
+                <h2>3. Requirements</h2>
+                <div class="toggle-container">
+                    <span>Tree View</span>
+                    <label class="switch">
+                        <input type="checkbox" id="treeViewToggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
             <table>
                 <thead>
                     <tr>
-                        <th>Item (Tree View)</th>
+                        <th>Item</th>
                         <th>Status</th>
                         <th>Have / Need</th>
                         <th>Missing</th>
@@ -297,7 +341,6 @@
 
 <script>
 // --- IMAGE MAPPING ---
-// Pre-filled with standard Wiki URLs. You can add more here.
 const ITEM_IMAGES = {
     "Strawberry": "https://bss-tools.netlify.app/static/media/Strawberries.6312ffaa06b161bdb95a.png",
     "Blueberry": "https://bss-tools.netlify.app/static/media/Blueberries.fc0b0128b722b680de4f.png",
@@ -326,7 +369,7 @@ const ITEM_IMAGES = {
     "Swirled Wax": "https://bss-tools.netlify.app/static/media/SwirledWax.c31ef0dcfe6622beeb44.png",
     "Caustic Wax": "https://bss-tools.netlify.app/static/media/CausticWax.e80e5ee95baaf56154d0.png",
     "Turpentine": "https://bss-tools.netlify.app/static/media/Turpentine.81cda48b94de8aa98657.png",
-    "Whirligig": "/Whirligig.webp",
+    "Whirligig": "https://placehold.co/40/333/fff?text=WG",
     "Field Dice": "https://bss-tools.netlify.app/static/media/FieldDice.ae48c6b6fcf41e5e3aaf.png",
     "Smooth Dice": "https://bss-tools.netlify.app/static/media/SmoothDice.2ed49812cbbda2c1a008.png",
     "Loaded Dice": "https://bss-tools.netlify.app/static/media/LoadedDice.645beaa8360b39e2bada.png",
@@ -335,7 +378,34 @@ const ITEM_IMAGES = {
     "Treat": "https://bss-tools.netlify.app/static/media/Treats.5e5df4715a517f9b24cb.png",
     "Honey": "https://bss-tools.netlify.app/static/media/Honey.568a73cfe25ca0dd7808.png",
     "Spirit Petal": "https://bss-tools.netlify.app/static/media/SpiritPetal.43cf4b79128e403899c6.png",
-    "Gold Egg": "https://bss-tools.netlify.app/static/media/GoldEgg.a4012ec29f252d07fd5d.png"
+    "Gold Egg": "https://bss-tools.netlify.app/static/media/GoldEgg.a4012ec29f252d07fd5d.png",
+    "Gummy Mask": "https://bss-tools.netlify.app/static/media/GummyMask.045f81254d630414c12b.png",
+    "Demon Mask": "https://bss-tools.netlify.app/static/media/DemonMask.e6273c3aa80ed700a14d.png",
+    "Diamond Mask": "https://bss-tools.netlify.app/static/media/DiamondMask.3c68c5cfae359f53cc98.png",
+    "Coco Canister": "https://bss-tools.netlify.app/static/media/CoconutCanister.2194ae9aa26e4f3cc56f.png",
+    "Coco Clogs": "https://bss-tools.netlify.app/static/media/CoconutClogs.b4e9d806424bc5a970e5.png",
+    "Tide Popper": "https://bss-tools.netlify.app/static/media/TidePopper.154fed6b0173417d2c85.png",
+    "Dark Scythe": "https://bss-tools.netlify.app/static/media/DarkScythe.496290f6a1ca72784101.png",
+    "Gummyballer": "https://bss-tools.netlify.app/static/media/GummyBaller.ce8536116b6808916931.png",
+    "Petal Wand": "https://bss-tools.netlify.app/static/media/PetalWand.f80564eab36c315f3346.png",
+    "Honey Mask": "https://bss-tools.netlify.app/static/media/HoneyMask.815716a92095c6f3a1be.png",
+    "Bucko Guard": "https://bss-tools.netlify.app/static/media/BuckoGuard.fa5a9ebe59a4c1590271.png",
+    "Riley Guard": "https://bss-tools.netlify.app/static/media/RileyGuard.846cb31db34fc3e6b058.png",
+    "Cobalt Guard": "https://bss-tools.netlify.app/static/media/CobaltGuard.8653d49a6393abc0f3b5.png",
+    "Crimson Guard": "https://bss-tools.netlify.app/static/media/CrimsonGuard.ad273ea786d314e83091.png",
+    "Mondo Belt": "https://bss-tools.netlify.app/static/media/MondoBelt.12c6b1d667a93427b516.png",
+    "Honeycomb Belt": "https://bss-tools.netlify.app/static/media/HoneycombBelt.f23790dd8fefd468ac4f.png",
+    "Petal Belt": "https://bss-tools.netlify.app/static/media/PetalBelt.353554e7d9d5bfb2bf9b.png",
+    "Beekeeper Boots": "data:image/png;base64,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",
+    "Gummy Boots": "https://bss-tools.netlify.app/static/media/GummyBoots.a6b0553f6d43b04c17b7.png",
+    "Blue Planter": "https://bss-tools.netlify.app/static/media/BlueClayPlanter.43fd28c09fe2d343f168.png",
+    "Red Planter": "https://bss-tools.netlify.app/static/media/RedClayPlanter.005caaabb0d0d1966c83.png",
+    "Tacky Planter": "https://bss-tools.netlify.app/static/media/TackyPlanter.2baea8c9922c27521040.png",
+    "Pesticide Planter": "https://bss-tools.netlify.app/static/media/PesticidePlanter.83b17a0370fbebf8e4f7.png",
+    "Hydroponic Planter": "https://bss-tools.netlify.app/static/media/HydroponicPlanter.60f43952115733a9d94b.png",
+    "Heat-Treated Planter": "https://bss-tools.netlify.app/static/media/HeatTreatedPlanter.ad195485611f76a85a96.png",
+    "Petal Planter": "https://bss-tools.netlify.app/static/media/PetalPlanter.46e2e31afc6cb5f342de.png",
+    "Plenty Of Planter": "https://bss-tools.netlify.app/static/media/PoPPlanter.c7227105504ad2837444.png"
 };
 
 function getItemIcon(itemName) {
@@ -377,15 +447,35 @@ const RECIPES = {
     "Coco Clogs":       { "Coconut": 150, "Tropical Drink": 50, "Glue": 100, "Oil": 100, "Honey": 10000000000 },
     "Tide Popper":      { "Blue Extract": 1500, "Stinger": 150, "Tropical Drink": 150, "Swirled Wax": 75, "Super Smoothie": 50, "Honey": 2500000000000 },
     "Dark Scythe":      { "Red Extract": 1500, "Stinger": 150, "Hard Wax": 100, "Caustic Wax": 50, "Super Smoothie": 50, "Honey": 2500000000000 },
-    "Gummyballer":      { "Glue": 1500, "Gumdrops": 2000, "Caustic Wax": 50, "Turpentine": 5, "Super Smoothie": 50, "Honey": 10000000000000 }
-};
+    "Gummyballer":      { "Glue": 1500, "Gumdrops": 2000, "Caustic Wax": 50, "Turpentine": 5, "Super Smoothie": 50, "Honey": 10000000000000 },
+    "Petal Wand":       { "Spirit Petal": 1, "Star Jelly": 10, "Glitter": 100, "Enzymes": 75, "Honey": 1500000000},
+    "Honey Mask":       { "Treat": 9999, "Oil": 50, "Enzymes": 25, "Gold Egg": 5, "Honey": 100000000},
+    "Bucko Guard":      { "Blueberry": 100, "Blue Extract": 10, "Glue": 5, "Moon Charm": 75, "Honey": 30000000},
+    "Riley Guard":      { "Strawberry": 100, "Red Extract": 10, "Glue": 5, "Stinger": 25, "Honey": 30000000},
+    "Cobalt Guard":     { "Blue Extract": 100, "Enzymes": 50, "Glitter": 25, "Stinger": 100, "Honey": 200000000},
+    "Crimson Guard":    { "Red Extract": 100, "Oil": 50, "Glitter": 25, "Stinger": 100, "Honey": 200000000},
+    "Mondo Belt":       { "Pineapple": 150, "Sunflower Seed": 150, "Stinger": 10, "Honey": 12000000},
+    "Honeycomb Belt":   { "Glue": 50, "Oil": 25, "Enzymes": 50, "Honey": 75000000},
+    "Petal Belt":       { "Spirit Petal": 1, "Glitter": 50, "Star Jelly": 25, "Glue": 100, "Honey": 5000000},
+    "Beekeeper Boots":  { "Red Extract": 3, "Blue Extract": 3, "Oil": 5, "Honey": 15000000 },
+    "Gummy Boots":      { "Blue Extract": 250, "Red Extract": 250, "Glue": 500, "Glitter": 250, "Honey": 100000000000 },
+    "Blue Planter":     { "Blue Extract": 15, "Soft Wax": 20, "Magic Bean": 5,  "Honey": 10000000},
+    "Red Planter":     { "Red Extract": 15, "Soft Wax": 20, "Magic Bean": 5,  "Honey": 10000000},
+    "Tacky Planter":   { "Soft Wax": 20, "Hard Wax": 5, "Purple Potion": 1, "Magic Bean": 10, "Honey": 50000000},
+    "Pesticide Planter": { "Neonberry": 25, "Glue": 15, "Hard Wax": 10, "Caustic Wax": 3, "Magic Bean": 25, "Honey": 750000000},
+    "Hydroponic Planter": { "Blue Extract": 750, "Soft Wax": 500, "Caustic Wax": 25, "Turpentine": 1, "Magic Bean": 75, "Honey": 750000000000},
+    "Heat-Treated Planter": { "Red Extract": 750, "Hard Wax": 150, "Swirled Wax": 25, "Turpentine": 1, "Magic Bean": 75, "Honey": 750000000000},
+    "Petal Planter":   { "Neonberry": 25, "Soft Wax": 250, "Swirled Wax": 50, "Glitter": 100, "Super Smoothie": 25, "Magic Bean": 100, "Honey": 5000000000000},
+    "Plenty Of Planter": { "Caustic Wax": 100, "Swirled Wax": 100, "Super Smoothie": 100, "Turpentine": 25, "Magic Bean": 500, "Honey": 100000000000000}
+};  
 
 const INVENTORY_KEYS = [
     "Strawberry", "Blueberry", "Pineapple", "Sunflower Seed", "Gumdrops", "Royal Jelly",
     "Moon Charm", "Magic Bean", "Stinger", "Coconut", "Honeysuckle", "Bitterberry", "Neonberry",
     "Red Extract", "Blue Extract", "Glue", "Enzymes", "Oil", "Glitter", "Star Jelly", "Tropical Drink",
     "Purple Potion", "Super Smoothie", "Field Dice", "Smooth Dice", "Loaded Dice", "Whirligig",
-    "Soft Wax", "Hard Wax", "Swirled Wax", "Caustic Wax", "Turpentine", "Diamond Egg"
+    "Soft Wax", "Hard Wax", "Swirled Wax", "Caustic Wax", "Turpentine", "Diamond Egg",
+    "Treat", "Gold Egg", "Spirit Petal", "Honey"
 ];
 
 const BASE_MATERIALS_LIST = [
@@ -395,6 +485,26 @@ const BASE_MATERIALS_LIST = [
     "Treat", "Honey","Gold Egg", "Spirit Petal"
 ];
 
+// --- CATEGORIZED TARGET OPTIONS ---
+const CATEGORIES = {
+    "Materials": [
+        "Red Extract", "Blue Extract", "Glue", "Enzymes", "Oil", "Glitter", 
+        "Moon Charm", "Star Jelly", "Tropical Drink", "Gumdrops", "Purple Potion", 
+        "Super Smoothie", "Soft Wax", "Hard Wax", "Swirled Wax", "Caustic Wax", 
+        "Field Dice", "Smooth Dice", "Loaded Dice", "Turpentine"
+    ],
+    "Gear & Tools": [
+        "Gummy Mask", "Demon Mask", "Diamond Mask", "Honey Mask", 
+        "Coco Canister", "Coco Clogs", "Tide Popper", "Dark Scythe", "Gummyballer", 
+        "Petal Wand", "Bucko Guard", "Riley Guard", "Cobalt Guard", "Crimson Guard", 
+        "Mondo Belt", "Honeycomb Belt", "Petal Belt", "Beekeeper Boots", "Gummy Boots"
+    ],
+    "Planters": [
+        "Blue Planter", "Red Planter", "Tacky Planter", "Pesticide Planter", 
+        "Hydroponic Planter", "Heat-Treated Planter", "Petal Planter", "Plenty Of Planter"
+    ]
+};
+
 const TARGET_OPTIONS = Object.keys(RECIPES).sort();
 
 // --- INITIALIZATION ---
@@ -402,17 +512,27 @@ document.addEventListener('DOMContentLoaded', () => {
     initInventory();
     initCustomDropdown();
     loadInventory();
+    loadSettings(); // NEW: Load Right-Side Settings
     
     document.getElementById('calcBtn').addEventListener('click', runCalculation);
+    document.getElementById('treeViewToggle').addEventListener('change', () => {
+        saveSettings();
+        runCalculation();
+    });
+    
+    // Save settings on qty change
+    document.getElementById('targetQty').addEventListener('input', () => {
+        saveSettings();
+    });
+
     document.getElementById('resetInv').addEventListener('click', () => {
         if(confirm("Clear all inventory data?")) {
-            document.querySelectorAll('.inv-item input').forEach(i => i.value = 0);
+            document.querySelectorAll('.inv-item input').forEach(i => i.value = '');
             saveInventory();
             runCalculation();
         }
     });
 
-    // Auto-calculate on load and input change
     runCalculation();
     document.getElementById('inventory-base').addEventListener('input', () => { saveInventory(); runCalculation(); });
     document.getElementById('inventory-crafted').addEventListener('input', () => { saveInventory(); runCalculation(); });
@@ -432,7 +552,7 @@ function initInventory() {
                 <img src="${getItemIcon(item)}" alt="${item}">
                 <span>${item}</span>
             </div>
-            <input type="number" id="inv-${cleanId}" data-name="${item}" value="0" min="0" placeholder="0">
+            <input type="number" id="inv-${cleanId}" data-name="${item}" min="0" placeholder="0" onkeypress="return event.charCode >= 48 && event.charCode <= 57">
         `;
 
         if (BASE_MATERIALS_LIST.includes(item)) {
@@ -451,22 +571,39 @@ function initCustomDropdown() {
     const triggerText = document.getElementById('trigger-text');
     const triggerImg = document.getElementById('trigger-img');
 
-    TARGET_OPTIONS.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'custom-option';
-        div.dataset.value = item;
-        div.innerHTML = `<img src="${getItemIcon(item)}" alt="${item}"><span>${item}</span>`;
+    for (const [category, items] of Object.entries(CATEGORIES)) {
+        const header = document.createElement('div');
+        header.className = 'custom-option-header';
+        header.textContent = category;
+        optionsContainer.appendChild(header);
 
-        div.addEventListener('click', () => {
-            triggerText.textContent = item;
-            triggerImg.src = getItemIcon(item);
-            hiddenInput.value = item;
-            wrapper.classList.remove('open');
-            runCalculation();
+        items.sort().forEach(item => {
+            if (!RECIPES[item]) return;
+            
+            const div = document.createElement('div');
+            div.className = 'custom-option';
+            div.dataset.value = item;
+            div.innerHTML = `<img src="${getItemIcon(item)}" alt="${item}"><span>${item}</span>`;
+
+            div.addEventListener('click', () => {
+                triggerText.textContent = item;
+                triggerImg.src = getItemIcon(item);
+                hiddenInput.value = item;
+                
+                // NEW: Update Lock Logic
+                updateQuantityLock(item);
+                
+                // NEW: Save Settings
+                saveSettings();
+
+                wrapper.classList.remove('open');
+                runCalculation();
+            });
+            optionsContainer.appendChild(div);
         });
-        optionsContainer.appendChild(div);
-    });
+    }
 
+    // Default
     const defaultItem = "Purple Potion";
     triggerText.textContent = defaultItem;
     triggerImg.src = getItemIcon(defaultItem);
@@ -482,6 +619,22 @@ function initCustomDropdown() {
     });
 }
 
+// --- NEW LOGIC: Lock Quantity for Gear/Planters ---
+function updateQuantityLock(itemName) {
+    const qtyInput = document.getElementById('targetQty');
+    const isMaterial = CATEGORIES["Materials"].includes(itemName);
+    
+    if (!isMaterial) {
+        // Gear or Planter -> Lock to 1
+        qtyInput.value = 1;
+        qtyInput.disabled = true;
+    } else {
+        // Material -> Unlock
+        qtyInput.disabled = false;
+    }
+}
+
+// --- PERSISTENCE ---
 function saveInventory() {
     const data = {};
     document.querySelectorAll('.inv-item input').forEach(input => {
@@ -500,6 +653,30 @@ function loadInventory() {
             const el = document.getElementById(`inv-${cleanId}`);
             if(el) el.value = data[key];
         });
+    }
+}
+
+function saveSettings() {
+    const settings = {
+        target: document.getElementById('targetItem').value,
+        qty: document.getElementById('targetQty').value,
+        treeView: document.getElementById('treeViewToggle').checked
+    };
+    localStorage.setItem('bss_settings', JSON.stringify(settings));
+}
+
+function loadSettings() {
+    const saved = localStorage.getItem('bss_settings');
+    if (saved) {
+        const s = JSON.parse(saved);
+        if(s.target && RECIPES[s.target]) {
+            document.getElementById('targetItem').value = s.target;
+            document.getElementById('trigger-text').textContent = s.target;
+            document.getElementById('trigger-img').src = getItemIcon(s.target);
+            updateQuantityLock(s.target);
+        }
+        if(s.qty) document.getElementById('targetQty').value = s.qty;
+        if(s.treeView !== undefined) document.getElementById('treeViewToggle').checked = s.treeView;
     }
 }
 
@@ -526,6 +703,7 @@ function addToShoppingList(item, amount) {
 function runCalculation() {
     const targetItem = document.getElementById('targetItem').value;
     const targetQty = parseInt(document.getElementById('targetQty').value) || 1;
+    const isTreeView = document.getElementById('treeViewToggle').checked;
     
     const resultsBody = document.getElementById('results-body');
     const shoppingTable = document.getElementById('shopping-list');
@@ -536,11 +714,10 @@ function runCalculation() {
     shoppingList = {}; 
     totalHoney = 0;
 
-    // Snapshot inventory for calculations
     tempInventory = {};
     INVENTORY_KEYS.forEach(k => tempInventory[k] = getInvCount(k));
 
-    renderRequirements(targetItem, targetQty, resultsBody, 0);
+    renderRequirements(targetItem, targetQty, resultsBody, 0, isTreeView);
     calculateShoppingCost(targetItem, targetQty);
 
     const sortedShopping = Object.keys(shoppingList).sort();
@@ -569,7 +746,7 @@ function runCalculation() {
     }
 }
 
-function renderRequirements(itemName, qty, container, depth) {
+function renderRequirements(itemName, qty, container, depth, isTreeView) {
     const recipe = RECIPES[itemName];
     if (!recipe) return;
 
@@ -602,8 +779,8 @@ function renderRequirements(itemName, qty, container, depth) {
         `;
         container.appendChild(tr);
 
-        if (missing > 0 && RECIPES[ingredient]) {
-             renderRequirements(ingredient, missing, container, depth + 1);
+        if (isTreeView && missing > 0 && RECIPES[ingredient]) {
+             renderRequirements(ingredient, missing, container, depth + 1, true);
         }
     }
 }
